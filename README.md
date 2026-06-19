@@ -1,5 +1,7 @@
 # Pay Syncer
 
-A simple CLI tool for syncing payments.
+A simple payment syncer.
 
-## Installation
+## Installation and Testing
+
+1. Run `python -m pytest` to test the project.

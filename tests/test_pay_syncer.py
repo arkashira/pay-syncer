@@ -1,33 +1,21 @@
 import pytest
-from src.pay_syncer import Payment, ReconciliationEngine
+from pay_syncer import Payment, sync_payments
 
-def test_payment_dataclass():
-    payment = Payment(1, 10.99, "pending")
-    assert payment.id == 1
-    assert payment.amount == 10.99
-    assert payment.status == "pending"
-
-def test_reconciliation_engine_add_payment():
-    engine = ReconciliationEngine()
-    payment = Payment(1, 10.99, "pending")
-    engine.add_payment(payment)
-    assert len(engine.payments) == 1
-
-def test_reconciliation_engine_sync_payments():
-    engine = ReconciliationEngine()
-    payment1 = Payment(1, 10.99, "pending")
-    payment2 = Payment(2, 5.99, "processed")
-    payment3 = Payment(3, 7.99, "pending")
-    engine.add_payment(payment1)
-    engine.add_payment(payment2)
-    engine.add_payment(payment3)
-
-    synced_payments = engine.sync_payments()
+def test_sync_payments_pending():
+    payments = [Payment(1, 10.0, "pending"), Payment(2, 20.0, "pending")]
+    synced_payments = sync_payments(payments)
     assert len(synced_payments) == 2
-    assert synced_payments[0].id == 1
-    assert synced_payments[1].id == 3
+    assert synced_payments[0].status == "synced"
+    assert synced_payments[1].status == "synced"
 
-def test_reconciliation_engine_sync_payments_empty():
-    engine = ReconciliationEngine()
-    synced_payments = engine.sync_payments()
+def test_sync_payments_already_synced():
+    payments = [Payment(1, 10.0, "synced"), Payment(2, 20.0, "synced")]
+    synced_payments = sync_payments(payments)
+    assert len(synced_payments) == 2
+    assert synced_payments[0].status == "synced"
+    assert synced_payments[1].status == "synced"
+
+def test_sync_payments_empty():
+    payments = []
+    synced_payments = sync_payments(payments)
     assert len(synced_payments) == 0
